@@ -1,0 +1,27 @@
+{
+  "id": "./",
+  "name": "오늘도 두뇌 운동! - 기억력 쑥쑥",
+  "short_name": "기억력 쑥쑥",
+  "description": "시니어도 쉽게 즐기는 그림 카드 기억력 게임",
+  "lang": "ko-KR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f7f1",
+  "theme_color": "#16866b",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

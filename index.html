@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>오늘도 두뇌 운동! - 기억력 쑥쑥</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16866b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--ink:#263b35;--green:#16866b;--pale:#f5f8ef;--line:#dce8d8;--pink:#ffe2e2;--blue:#e2efff;--yellow:#fff1c9}
+*{box-sizing:border-box}body{margin:0;background:#f4f7f1;color:var(--ink);font-family:system-ui,-apple-system,"Malgun Gothic",sans-serif}
+.app{max-width:680px;margin:auto;min-height:100vh;padding:22px 18px 34px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+.brand{font-size:clamp(23px,5vw,32px);font-weight:850;letter-spacing:-1px}.brand span{color:var(--green)}
+button{font:inherit;cursor:pointer;border:0}
+.iconbtn{background:white;border:1px solid var(--line);border-radius:15px;padding:10px 13px;font-size:23px}
+.welcome{background:linear-gradient(120deg,#e4f4e5,#fdf2d8);border:1px solid var(--line);border-radius:24px;padding:20px;margin-bottom:16px}
+.welcome h1{font-size:clamp(23px,5vw,30px);margin:0 0 7px}.welcome p{font-size:17px;margin:0;line-height:1.5}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0}
+.stat{background:white;border:1px solid var(--line);border-radius:17px;text-align:center;padding:12px 5px}
+.stat small{display:block;font-size:14px;color:#62756d;margin-bottom:4px}.stat strong{font-size:clamp(21px,5vw,28px);font-variant-numeric:tabular-nums}
+.panel{background:white;border:1px solid var(--line);border-radius:24px;padding:17px}
+.panelhead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+.panelhead h2{font-size:21px;margin:0}.pill{font-size:14px;background:#edf7ed;border-radius:20px;padding:7px 11px;color:#26734f}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.card{aspect-ratio:1/1;min-width:0;border-radius:17px;background:#dfe8ff;border:2px solid #bdc9f5;display:grid;place-items:center;font-size:clamp(30px,8vw,51px);box-shadow:0 3px 0 #b6c4ee;transition:transform .12s,background .12s;padding:0}
+.card:focus-visible,button:focus-visible{outline:4px solid #f2a900;outline-offset:3px}
+.card .face{display:none}.card.flipped,.card.matched{background:#fff9e9;border-color:#e9d59c;box-shadow:0 3px 0 #e5d29a}.card.flipped .back,.card.matched .back{display:none}.card.flipped .face,.card.matched .face{display:block}.card.matched{background:#e8f7e9;border-color:#a8d9b0;box-shadow:0 3px 0 #a8d9b0;cursor:default}
+.actions{display:flex;gap:10px;margin-top:16px}.primary,.secondary{border-radius:16px;padding:14px 18px;font-size:18px;font-weight:750;flex:1}.primary{background:var(--green);color:white}.secondary{background:#f1f5ef;color:#365449;border:1px solid var(--line)}
+.note{text-align:center;color:#61736b;font-size:15px;line-height:1.6;margin:14px 4px 0}
+.message{text-align:center;min-height:30px;margin:12px 0 0;font-size:17px;font-weight:700;color:#247a5a}
+footer{text-align:center;color:#728078;font-size:13px;margin-top:18px}
+@media(max-width:390px){.app{padding:15px 12px}.grid{gap:7px}.card{border-radius:13px}.panel{padding:12px}}
+</style>
+</head>
+<body><main class="app">
+<header><div class="brand">🌿 오늘도 <span>두뇌 운동!</span></div><button class="iconbtn" aria-label="도움말" onclick="help()">?</button></header>
+<section class="welcome"><h1>🧠 기억력 쑥쑥</h1><p>카드를 하나씩 눌러 같은 그림을 찾아보세요.<br>천천히 즐기셔도 괜찮아요!</p></section>
+<div class="stats" aria-live="polite">
+<div class="stat"><small>찾은 짝</small><strong id="pairs">0 / 6</strong></div>
+<div class="stat"><small>시도 횟수</small><strong id="tries">0</strong></div>
+<div class="stat"><small>걸린 시간</small><strong id="time">00:00</strong></div>
+</div>
+<section class="panel"><div class="panelhead"><h2>그림 카드</h2><span class="pill" id="level">쉬운 단계</span></div>
+<div class="grid" id="grid" aria-label="기억력 카드 게임"></div>
+<div class="message" id="message" aria-live="polite">시작하기를 눌러 게임을 시작하세요.</div>
+<div class="actions"><button class="primary" onclick="startGame()">새 게임 시작</button><button class="secondary" onclick="toggleHint()">그림 보기</button></div>
+</section>
+<p class="note">💚 매일 5분, 가벼운 두뇌 운동 습관을 만들어 보세요.<br>그림 보기는 카드를 잠시 모두 보여줍니다.</p>
+<footer>오늘도 즐겁게, 나만의 속도로 🌼</footer>
+</main>
+<script>
+const pictures=["🐶","🌼","🍎","🐱","🦋","🍓"];
+let deck=[],first=null,lock=false,matched=0,tries=0,seconds=0,timer=null,started=false,hintTimer=null;
+const grid=document.getElementById("grid");
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function render(){grid.innerHTML="";deck.forEach((v,i)=>{const b=document.createElement("button");b.className="card";b.type="button";b.setAttribute("aria-label","카드 "+(i+1));b.innerHTML='<span class="back" aria-hidden="true">✿</span><span class="face" aria-hidden="true">'+v+'</span>';b.onclick=()=>flip(i,b);grid.appendChild(b)})}
+function update(){document.getElementById("pairs").textContent=matched+" / 6";document.getElementById("tries").textContent=tries;document.getElementById("time").textContent=String(Math.floor(seconds/60)).padStart(2,"0")+":"+String(seconds%60).padStart(2,"0")}
+function startGame(){clearInterval(timer);clearTimeout(hintTimer);deck=shuffle([...pictures,...pictures]);first=null;lock=false;matched=0;tries=0;seconds=0;started=true;document.getElementById("message").textContent="같은 그림 두 장을 찾아보세요.";render();update();timer=setInterval(()=>{if(started){seconds++;update()}},1000)}
+function flip(i,b){if(!started||lock||b.classList.contains("flipped")||b.classList.contains("matched"))return;b.classList.add("flipped");b.setAttribute("aria-label",deck[i]);if(first===null){first={i,b};return}tries++;const one=first;first=null;if(deck[one.i]===deck[i]){one.b.classList.add("matched");b.classList.add("matched");matched++;document.getElementById("message").textContent="잘하셨어요! 같은 그림을 찾았어요. 🌷";update();if(matched===6){started=false;clearInterval(timer);document.getElementById("message").textContent="🎉 모두 찾았어요! 참 잘하셨어요!";}}else{lock=true;document.getElementById("message").textContent="괜찮아요. 그림을 다시 기억해 보세요.";setTimeout(()=>{one.b.classList.remove("flipped");b.classList.remove("flipped");lock=false},900)}update()}
+function toggleHint(){if(!started){document.getElementById("message").textContent="먼저 새 게임 시작을 눌러주세요.";return}if(lock)return;const cards=[...grid.children];cards.forEach(c=>{if(!c.classList.contains("matched"))c.classList.add("flipped")});lock=true;document.getElementById("message").textContent="그림을 잘 살펴보세요.";clearTimeout(hintTimer);hintTimer=setTimeout(()=>{cards.forEach(c=>{if(!c.classList.contains("matched"))c.classList.remove("flipped")});lock=false;document.getElementById("message").textContent="이제 같은 그림을 찾아보세요."},1800)}
+function help(){alert("카드를 눌러 그림을 확인하세요. 같은 그림 두 장을 찾으면 짝이 맞춰집니다. 새 게임 시작을 누르면 언제든 다시 할 수 있어요.")}
+startGame();
+</script><script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+</script>
+</body></html>
